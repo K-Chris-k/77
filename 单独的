@@ -1,0 +1,1217 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>❤ 77</title>
+  <style>
+    :root { color-scheme: dark; }
+    html, body { height: 100%; margin: 0; background:#000; font-family: system-ui, -apple-system, Segoe UI, Roboto, "PingFang SC","Microsoft Yahei", sans-serif; }
+    .wrap{ height:100%; display:grid; place-items:center; padding:16px; box-sizing:border-box; }
+    .card{
+      width:min(980px,96vw);
+      border-radius:18px;
+      overflow:hidden;
+      background: rgba(255,255,255,.04);
+      border:1px solid rgba(255,255,255,.10);
+      box-shadow: 0 18px 70px rgba(0,0,0,.65);
+    }
+    .topbar{
+      display:flex; align-items:center; justify-content:space-between;
+      padding:14px; gap:10px;
+      border-bottom:1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.35);
+    }
+    .brand{display:flex; align-items:center; gap:10px;}
+    .dot{width:10px;height:10px;border-radius:50%;background:#ff4d7d;box-shadow:0 0 18px rgba(255,77,125,.75);}
+    .title{color:rgba(255,255,255,.92); font-weight:800; letter-spacing:.4px;}
+    .hint{color:rgba(255,255,255,.62); font-size:12px; margin-top:2px;}
+    .controls{display:flex; gap:8px; align-items:center; flex-wrap:wrap;}
+    button{
+      border:1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.06);
+      color: rgba(255,255,255,.9);
+      padding: 8px 10px;
+      border-radius: 12px;
+      cursor:pointer;
+      user-select:none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    button:hover{background: rgba(255,255,255,.10);}
+    button:active{transform: translateY(1px);}
+    .main{
+      position:relative;
+      height:min(74vh,660px);
+      background: radial-gradient(900px 620px at 50% 40%, rgba(255,77,125,.10), transparent 66%);
+    }
+    canvas{width:100%; height:100%; display:block;}
+    .overlay{
+      position:absolute; inset:0;
+      display:grid; place-items:center;
+      background: linear-gradient(180deg, rgba(0,0,0,.84), rgba(0,0,0,.92));
+      backdrop-filter: blur(8px);
+      padding:18px;
+    }
+    .panel{
+      width:min(560px, 94vw);
+      border-radius:18px;
+      background: rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.14);
+      box-shadow: 0 18px 70px rgba(0,0,0,.65);
+      padding:18px;
+      color: rgba(255,255,255,.92);
+    }
+    .panel h2{margin:0 0 10px 0; font-size:18px;}
+    .panel p{margin:8px 0 14px 0; color: rgba(255,255,255,.74); font-size:14px; line-height:1.6;}
+    .row{display:flex; gap:10px; align-items:center; flex-wrap:wrap;}
+    input{
+      flex:1; min-width:200px;
+      padding:10px 12px;
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,.16);
+      background: rgba(0,0,0,.22);
+      color: rgba(255,255,255,.92);
+      outline:none;
+    }
+    input::placeholder{color: rgba(255,255,255,.45);}
+    .err{ margin-top:10px; color: rgba(255,120,120,.95); font-size: 13px; display:none; }
+    .shake{ animation: shake .28s linear; }
+    @keyframes shake{
+      0%{transform:translateX(0)}
+      25%{transform:translateX(-6px)}
+      50%{transform:translateX(6px)}
+      75%{transform:translateX(-4px)}
+      100%{transform:translateX(0)}
+    }
+    .footer{
+      padding: 10px 14px 14px 14px;
+      color: rgba(255,255,255,.55);
+      font-size: 12px;
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      flex-wrap:wrap;
+      background: rgba(0,0,0,.25);
+    }
+    .pill{
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.05);
+      padding: 6px 10px;
+      border-radius: 999px;
+    }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <div class="card">
+    <div class="topbar">
+      <div class="brand">
+        <div class="dot"></div>
+        <div>
+          <div class="title">❤ 爱心 ❤</div>
+        </div>
+      </div>
+      <div class="controls">
+        <button id="btnMinus" title="缩小">－</button>
+        <button id="btnPlus" title="放大">＋</button>
+        <button id="btnReset" title="重置">重置</button>
+        <button id="btnToggleFW">烟花：开</button>
+        <button id="btnToggleType">打字：开</button>
+      </div>
+    </div>
+
+    <div class="main">
+      <canvas id="c"></canvas>
+
+      <div class="overlay" id="overlay">
+        <div class="panel" id="panel">
+          <h2 id="stepTitle">第一步：确认一下</h2>
+          <p id="stepDesc">你确定要打开吗？只有输入 <b>xx</b> 才能进入。</p>
+          <div class="row" id="actions">
+            <button id="btnNo">我再想想</button>
+            <button id="btnYes">确定</button>
+          </div>
+          <div class="err" id="err">不对哦：只有输入 xx 才能进入。</div>
+          <div style="height:10px"></div>
+          <div class="row">
+            <span class="pill">拖拽：旋转 360°</span>
+            <span class="pill">Space + 拖拽：平移</span>
+            <span class="pill">手机：双指拖动平移 / 捏合缩放</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+(() => {
+  // ================= Canvas & view =================
+  const canvas = document.getElementById('c');
+  const ctx = canvas.getContext('2d', { alpha: false });
+
+  let dpr = Math.max(1, Math.min(2.5, window.devicePixelRatio || 1));
+  let W=0, H=0;
+
+  let scale = 1.0;
+  let offsetX = 0, offsetY = 0;
+
+  function resize(){
+    const rect = canvas.getBoundingClientRect();
+    W = Math.floor(rect.width * dpr);
+    H = Math.floor(rect.height * dpr);
+    canvas.width = W;
+    canvas.height = H;
+
+    if (offsetX === 0 && offsetY === 0){
+      offsetX = W/2;
+      offsetY = H/2;
+      scale = Math.min(W,H) / 760;
+    }
+  }
+  function clamp(v,a,b){ return Math.max(a, Math.min(b, v)); }
+  function setScaleAroundPoint(newScale, cx, cy){
+    const old = scale;
+    newScale = clamp(newScale, 0.15, 10);
+    const wx = (cx - offsetX) / old;
+    const wy = (cy - offsetY) / old;
+    scale = newScale;
+    offsetX = cx - wx * scale;
+    offsetY = cy - wy * scale;
+  }
+  function resetView(){
+    offsetX = W/2;
+    offsetY = H/2;
+    scale = Math.min(W,H) / 760;
+  }
+
+  // ================= UI gating (77 only) =================
+  const overlay = document.getElementById('overlay');
+  const panel = document.getElementById('panel');
+  const stepTitle = document.getElementById('stepTitle');
+  const stepDesc  = document.getElementById('stepDesc');
+  const actions   = document.getElementById('actions');
+  const errEl     = document.getElementById('err');
+
+  function step1(){
+    errEl.style.display = "none";
+    stepTitle.textContent = "第一步：确认一下";
+    stepDesc.innerHTML = "你确定要打开吗？只有输入 <b>xx</b> 才能进入。";
+    actions.innerHTML = `
+      <button id="btnNo2">我再想想</button>
+      <button id="btnYes2">确定</button>
+    `;
+    document.getElementById('btnNo2').addEventListener('click', () => {
+      stepTitle.textContent = "那就先收好 ❤";
+      stepDesc.textContent = "想好了再点“确定”。";
+      actions.innerHTML = `<button id="btnYes3">确定</button>`;
+      document.getElementById('btnYes3').addEventListener('click', step2);
+    });
+    document.getElementById('btnYes2').addEventListener('click', step2);
+  }
+
+  function step2(){
+    errEl.style.display = "none";
+    stepTitle.textContent = "第二步：输入名字";
+    stepDesc.textContent = "请输入“xx”才会开始（其他输入不允许）。";
+    actions.innerHTML = `
+      <input id="nameInput" maxlength="8" placeholder="请输入 xx" inputmode="numeric" />
+      <button id="btnStart">开始</button>
+      <button id="btnBack">返回</button>
+    `;
+    const input = document.getElementById('nameInput');
+    const start = document.getElementById('btnStart');
+    const back  = document.getElementById('btnBack');
+
+    input.focus();
+
+    function fail(){
+      errEl.style.display = "block";
+      panel.classList.remove('shake'); void panel.offsetWidth; panel.classList.add('shake');
+      input.style.borderColor = "rgba(255,120,120,.9)";
+      input.style.boxShadow = "0 0 0 3px rgba(255,120,120,.15)";
+      setTimeout(() => {
+        input.style.borderColor = "rgba(255,255,255,.16)";
+        input.style.boxShadow = "none";
+      }, 650);
+    }
+
+    start.addEventListener('click', () => {
+      const v = (input.value || "").trim();
+      if (v !== "77") return fail();
+      errEl.style.display = "none";
+      overlay.style.display = "none";
+      startShow();
+    });
+
+    back.addEventListener('click', step1);
+    input.addEventListener('keydown', (e) => {
+      if (e.key === "Enter") start.click();
+      if (e.key === "Escape") back.click();
+    });
+  }
+
+  // ================= Controls =================
+  const btnPlus  = document.getElementById('btnPlus');
+  const btnMinus = document.getElementById('btnMinus');
+  const btnReset = document.getElementById('btnReset');
+  const btnToggleFW = document.getElementById('btnToggleFW');
+  const btnToggleType = document.getElementById('btnToggleType');
+
+  btnPlus.addEventListener('click', () => setScaleAroundPoint(scale*1.12, W*0.5, H*0.5));
+  btnMinus.addEventListener('click', () => setScaleAroundPoint(scale/1.12, W*0.5, H*0.5));
+  btnReset.addEventListener('click', resetView);
+
+  let enableFireworks = true;
+  let enableTyping = true;
+  btnToggleFW.addEventListener('click', () => {
+    enableFireworks = !enableFireworks;
+    btnToggleFW.textContent = `烟花：${enableFireworks ? "开" : "关"}`;
+  });
+  btnToggleType.addEventListener('click', () => {
+    enableTyping = !enableTyping;
+    btnToggleType.textContent = `打字：${enableTyping ? "开" : "关"}`;
+  });
+
+  // ================= Interaction =================
+  function getCanvasPoint(clientX, clientY){
+    const rect = canvas.getBoundingClientRect();
+    return { x: (clientX - rect.left) * dpr, y: (clientY - rect.top) * dpr };
+  }
+
+  canvas.addEventListener('wheel', (e) => {
+    e.preventDefault();
+    const p = getCanvasPoint(e.clientX, e.clientY);
+    const zoom = Math.exp((-e.deltaY) * 0.0012);
+    setScaleAroundPoint(scale * zoom, p.x, p.y);
+  }, { passive:false });
+
+  let rotX = -0.12;
+  let rotY = 0.24;
+
+  let isDragging = false;
+  let lastX=0, lastY=0;
+  let spaceDown = false;
+  window.addEventListener('keydown', (e) => { if (e.code === "Space") spaceDown = true; });
+  window.addEventListener('keyup',   (e) => { if (e.code === "Space") spaceDown = false; });
+
+  canvas.addEventListener('mousedown', (e) => {
+    isDragging = true;
+    const p = getCanvasPoint(e.clientX, e.clientY);
+    lastX = p.x; lastY = p.y;
+    canvas.style.cursor = "grabbing";
+  });
+
+  window.addEventListener('mousemove', (e) => {
+    if (!isDragging) return;
+    const p = getCanvasPoint(e.clientX, e.clientY);
+    const dx = p.x - lastX;
+    const dy = p.y - lastY;
+    lastX = p.x; lastY = p.y;
+
+    if (spaceDown){
+      offsetX += dx;
+      offsetY += dy;
+    } else {
+      rotY += dx * 0.006;
+      rotX += dy * 0.006;
+      rotX = clamp(rotX, -1.20, 1.20);
+    }
+  });
+
+  window.addEventListener('mouseup', () => {
+    isDragging = false;
+    canvas.style.cursor = "default";
+  });
+
+  // touch: 1 finger rotate, 2 fingers pan+pinch
+  let pinch = { active:false, startDist:0, startScale:1, cx:0, cy:0 };
+  let twoFingerPan = { active:false, lastCx:0, lastCy:0 };
+
+  canvas.addEventListener('touchstart', (e) => {
+    if (e.touches.length === 1){
+      const p = getCanvasPoint(e.touches[0].clientX, e.touches[0].clientY);
+      isDragging = true; lastX = p.x; lastY = p.y;
+    } else if (e.touches.length === 2){
+      isDragging = false;
+      pinch.active = true;
+
+      const p1 = getCanvasPoint(e.touches[0].clientX, e.touches[0].clientY);
+      const p2 = getCanvasPoint(e.touches[1].clientX, e.touches[1].clientY);
+
+      pinch.startDist = Math.hypot(p2.x-p1.x, p2.y-p1.y);
+      pinch.startScale = scale;
+      pinch.cx = (p1.x+p2.x)/2;
+      pinch.cy = (p1.y+p2.y)/2;
+
+      twoFingerPan.active = true;
+      twoFingerPan.lastCx = pinch.cx;
+      twoFingerPan.lastCy = pinch.cy;
+    }
+  }, { passive:true });
+
+  canvas.addEventListener('touchmove', (e) => {
+    if (pinch.active && e.touches.length === 2){
+      const p1 = getCanvasPoint(e.touches[0].clientX, e.touches[0].clientY);
+      const p2 = getCanvasPoint(e.touches[1].clientX, e.touches[1].clientY);
+      const dist = Math.hypot(p2.x-p1.x, p2.y-p1.y);
+      const ratio = dist / (pinch.startDist || dist);
+
+      setScaleAroundPoint(pinch.startScale * ratio, pinch.cx, pinch.cy);
+
+      const cx = (p1.x+p2.x)/2;
+      const cy = (p1.y+p2.y)/2;
+      offsetX += (cx - twoFingerPan.lastCx);
+      offsetY += (cy - twoFingerPan.lastCy);
+      twoFingerPan.lastCx = cx;
+      twoFingerPan.lastCy = cy;
+    } else if (isDragging && e.touches.length === 1){
+      const p = getCanvasPoint(e.touches[0].clientX, e.touches[0].clientY);
+      const dx = p.x - lastX;
+      const dy = p.y - lastY;
+      lastX = p.x; lastY = p.y;
+      rotY += dx * 0.006;
+      rotX += dy * 0.006;
+      rotX = clamp(rotX, -1.20, 1.20);
+    }
+  }, { passive:true });
+
+  canvas.addEventListener('touchend', (e) => {
+    if (e.touches.length === 0){
+      isDragging = false;
+      pinch.active = false;
+      twoFingerPan.active = false;
+    } else if (e.touches.length === 1){
+      pinch.active = false;
+      twoFingerPan.active = false;
+      const p = getCanvasPoint(e.touches[0].clientX, e.touches[0].clientY);
+      isDragging = true; lastX = p.x; lastY = p.y;
+    }
+  });
+
+  // ================= 3D rotate + projection =================
+  function rotate3D(x,y,z, rx, ry){
+    const cx = Math.cos(rx), sx = Math.sin(rx);
+    const cy = Math.cos(ry), sy = Math.sin(ry);
+
+    let y1 = y*cx - z*sx;
+    let z1 = y*sx + z*cx;
+    let x1 = x;
+
+    let z2 = z1*cy - x1*sy;
+    let x2 = z1*sy + x1*cy;
+    let y2 = y1;
+
+    return {x:x2,y:y2,z:z2};
+  }
+  function projectSafe(x,y,z){
+    const f = 260;
+    const zClamped = Math.max(z, -f + 1);
+    const s = f / (f + zClamped);
+    return { x: x*s, y: y*s, s: Math.max(0.12, s) };
+  }
+
+  // ================= Heart targets =================
+  function heart(a){
+    const x = 16 * Math.pow(Math.sin(a), 3);
+    const y = 13 * Math.cos(a) - 5 * Math.cos(2*a) - 2 * Math.cos(3*a) - Math.cos(4*a);
+    return { x, y: -y };
+  }
+
+  const OUTLINE_N = 1400;
+  const FILL_N = 5600;
+  const targets = [];
+
+  function buildTargets(){
+    targets.length = 0;
+
+    const poly = [];
+    for (let i=0;i<OUTLINE_N;i++){
+      const a = (i/OUTLINE_N) * Math.PI*2;
+      const p = heart(a);
+      poly.push([p.x, p.y]);
+      targets.push({ x:p.x, y:p.y, layer:"outline" });
+    }
+
+    function insidePoly(x,y){
+      let c = false;
+      for (let i=0,j=poly.length-1;i<poly.length;j=i++){
+        const xi=poly[i][0], yi=poly[i][1];
+        const xj=poly[j][0], yj=poly[j][1];
+        const intersect = ((yi>y)!=(yj>y)) && (x < (xj-xi)*(y-yi)/(yj-yi+1e-12)+xi);
+        if (intersect) c = !c;
+      }
+      return c;
+    }
+
+    const minX=-18, maxX=18, minY=-16, maxY=18;
+    let fillCount = 0;
+    let tries = 0;
+
+    while (fillCount < FILL_N && tries < FILL_N*70){
+      tries++;
+      const x = minX + Math.random()*(maxX-minX);
+      const y = minY + Math.random()*(maxY-minY);
+      if (!insidePoly(x,y)) continue;
+
+      const edgeBias = Math.random();
+      if (edgeBias < 0.72){
+        const k = (Math.random()*poly.length)|0;
+        const ox = poly[k][0], oy = poly[k][1];
+        const mix = 0.62 + Math.random()*0.30;
+        targets.push({ x: x*(1-mix)+ox*mix, y: y*(1-mix)+oy*mix, layer:"fill" });
+      } else {
+        targets.push({ x, y, layer:"fill" });
+      }
+      fillCount++;
+    }
+  }
+  buildTargets();
+
+  // ================= “心里挖出7形亮纹” —— 不是叠加点阵，而是同一套粒子增亮/变粗 =================
+  // 做法：对每个粒子的目标点(心形坐标)算它到“7”的距离，距离越近越亮/越粗；周边做轻微压暗，产生“刻痕/亮纹”对比
+  function distToSeg(px,py, ax,ay, bx,by){
+    const vx = bx-ax, vy = by-ay;
+    const wx = px-ax, wy = py-ay;
+    const vv = vx*vx + vy*vy + 1e-9;
+    let t = (wx*vx + wy*vy)/vv;
+    t = Math.max(0, Math.min(1, t));
+    const cx = ax + vx*t;
+    const cy = ay + vy*t;
+    const dx = px - cx, dy = py - cy;
+    return Math.hypot(dx,dy);
+  }
+
+  // 返回：到“7”笔画的最小距离（心形坐标单位）
+  function sevenDistance(x,y, side){
+    // side: -1 左，+1 右
+    // 位置：爱心内部两侧（你图里那种）
+    const cx = side * 7.2;
+    const cy = 0.2;
+
+    // 局部坐标
+    let px = x - cx;
+    let py = y - cy;
+
+    // 右侧镜像，让两个7对称
+    if (side > 0) px = -px;
+
+    // 整体倾斜
+    const ang = -0.35;
+    const ca = Math.cos(ang), sa = Math.sin(ang);
+    const rx = px*ca - py*sa;
+    const ry = px*sa + py*ca;
+
+    // 定义“7”的两段：顶部横线 + 斜线
+    // 尺寸：控制在心形内部
+    const topA = {x:-2.6, y:-2.4}, topB = {x: 2.6, y:-2.4};
+    const diaA = {x: 2.3, y:-2.0}, diaB = {x:-1.3, y: 4.2};
+
+    const d1 = distToSeg(rx,ry, topA.x,topA.y, topB.x,topB.y);
+    const d2 = distToSeg(rx,ry, diaA.x,diaA.y, diaB.x,diaB.y);
+    return Math.min(d1,d2);
+  }
+
+  // 给定心形坐标，返回亮纹强度 [0..1]
+  function sevenIntensity(x,y){
+    // 两个7取最强
+    const dL = sevenDistance(x,y,-1);
+    const dR = sevenDistance(x,y, 1);
+    const d = Math.min(dL,dR);
+
+    // “笔画宽度”(越小越细)，单位：心形坐标
+    const stroke = 0.22;
+    // “影响范围”(用于压暗周边做刻痕)，稍大一些
+    const groove = 0.85;
+
+    // 主亮纹：距离 < stroke 时强
+    let core = 1 - (d / stroke);
+    core = clamp(core, 0, 1);
+    core = core*core*(3-2*core); // smoothstep
+
+    // 周边刻痕：距离在 stroke..groove 的范围内轻微压暗
+    let rim = 1 - ((d - stroke) / (groove - stroke));
+    rim = clamp(rim, 0, 1);
+    rim = rim*rim;
+
+    return { core, rim };
+  }
+
+  // ================= Random helpers =================
+  function rand(a,b){ return a + Math.random()*(b-a); }
+  function easeOutCubic(x){ x = clamp(x,0,1); return 1 - Math.pow(1-x, 3); }
+
+  // ================= Heart particles =================
+  let particles = [];
+  let time = 0;
+
+  let introT = 0;
+  const INTRO_DUR = 8.2;
+  const SWITCH_FADE = 0.75;
+
+  let heartProgress = 0;
+  let formed = false;
+  let formedAt = 0;
+
+  // typewriter
+  let typing = false;
+  let typed = "";
+  let typeTimer = 0;
+  const typeTarget = "77 ❤ 你看，它会跳动，也会慢慢变成完整的爱心。";
+
+  function startTyping(){
+    typing = true;
+    typed = "";
+    typeTimer = 0;
+  }
+
+  function resetHeartParticles(){
+    particles = [];
+    for (let i=0;i<targets.length;i++){
+      const t = targets[i];
+      particles.push({
+        x: rand(-260, 260),
+        y: rand(-220, 280),
+        vx: rand(-40, 40),
+        vy: rand(-40, 40),
+        tx: t.x,
+        ty: t.y,
+        layer: t.layer,
+        flicker: rand(0, Math.PI*2),
+        size: rand(0.8, 1.9),
+        glow: rand(0.30, 0.95),
+      });
+    }
+    for (let i=particles.length-1;i>0;i--){
+      const j = (Math.random()*(i+1))|0;
+      const tmp = particles[i]; particles[i]=particles[j]; particles[j]=tmp;
+    }
+  }
+
+  // ================= Fireworks: sparks rain + separate readable text lines =================
+  const BLESSINGS = [
+    "天天开心","越来越好","心想事成","平安喜乐","万事顺遂","事事如意",
+    "好运连连","快乐加倍","笑口常开","顺风顺水","所愿皆成","所行皆坦途",
+    "万事如意","每天开心","幸福满满","万事顺心","心想事成","前程似锦",
+    "永远闪闪发光","愿你被温柔以待","越来越多的开心","所遇皆良人",
+    "生活明朗","未来可期","喜乐常在","一切顺利","永远热爱","不负遇见"
+  ];
+
+  let rockets = [];        // {x,y,vx,vy,age,life,apexY,trail[]}
+  let flashes = [];        // {x,y,age,life}
+  let sparkRain = [];      // {x,y,vx,vy,age,life,a}
+  let textLines = [];      // {text,x,y,vx,vy,age,life,alpha,size}
+  let textEmitters = [];   // {x,y,age,life,next,rate,spreadX}
+
+  const MAX_ACTIVE_TEXT = 7;
+
+  function spawnFlash(x,y,life=0.12){
+    flashes.push({ x,y, age:0, life });
+  }
+
+  function spawnRocketFromBattery(x){
+    const y = rand(280, 330);
+    const vy = -rand(410, 580);
+    const vx = rand(-12, 12);
+    const apexY = rand(-400, -285);
+    rockets.push({ x,y,vx,vy, age:0, life: rand(1.8, 2.8), apexY, trail: [] });
+    spawnFlash(x,y,0.14);
+  }
+
+  function spawnExplosion(x,y){
+    spawnFlash(x,y,0.13);
+
+    const cnt = 220;
+    for (let i=0;i<cnt;i++){
+      const a = Math.random()*Math.PI*2;
+      const sp = rand(40, 210);
+      sparkRain.push({
+        x: x + rand(-8,8),
+        y: y + rand(-6,10),
+        vx: Math.cos(a)*sp*0.35 + rand(-10,10),
+        vy: Math.sin(a)*sp*0.15 + rand(20,90),
+        age: 0,
+        life: rand(1.4, 2.3),
+        a: rand(0.35, 0.85)
+      });
+    }
+
+    textEmitters.push({
+      x, y,
+      age: 0,
+      life: rand(1.2, 1.9),
+      next: rand(0.05, 0.18),
+      rate: rand(0.18, 0.28),
+      spreadX: rand(110, 170)
+    });
+  }
+
+  function emitTextLine(em){
+    if (textLines.length >= MAX_ACTIVE_TEXT) return;
+
+    const text = BLESSINGS[(Math.random()*BLESSINGS.length)|0];
+    const sx = em.x + rand(-em.spreadX, em.spreadX);
+    const sy = em.y + rand(-8, 10);
+    const vx = rand(-6, 6);
+    const vy = rand(70, 110);
+
+    textLines.push({
+      text,
+      x: sx, y: sy,
+      vx, vy,
+      age: 0,
+      life: rand(3.2, 4.6),
+      alpha: rand(0.70, 0.95),
+      size: rand(16, 19)
+    });
+  }
+
+  // battery line launches
+  let battery = { xs: [], idx: 0, nextT: 0, interval: 0.22 };
+  function rebuildBattery(){
+    battery.xs = [];
+    const left = -260, right = 260, step = 52;
+    for (let x=left; x<=right+1e-6; x+=step){
+      battery.xs.push(x + rand(-6, 6));
+    }
+    battery.idx = 0;
+    battery.nextT = 0;
+  }
+  function batteryLaunch(dt){
+    if (!enableFireworks) return;
+    battery.nextT -= dt;
+    if (battery.nextT > 0) return;
+    battery.nextT = battery.interval + rand(-0.05, 0.07);
+    const x = battery.xs[battery.idx % battery.xs.length];
+    battery.idx++;
+    spawnRocketFromBattery(x);
+  }
+
+  // ================= Background =================
+  function clearWithTrail(){
+    ctx.fillStyle = "rgba(0,0,0,0.22)";
+    ctx.fillRect(0,0,W,H);
+
+    const g = ctx.createRadialGradient(W*0.5, H*0.42, 10, W*0.5, H*0.55, Math.max(W,H)*0.55);
+    g.addColorStop(0, "rgba(255,77,125,0.12)");
+    g.addColorStop(1, "rgba(0,0,0,0)");
+    ctx.fillStyle = g;
+    ctx.fillRect(0,0,W,H);
+  }
+
+  function drawBottomDisk(){
+    const baseY = H*0.88;
+    const cx = W*0.5;
+    const maxR = Math.min(W,H)*0.55;
+
+    ctx.save();
+    ctx.globalAlpha = 0.55;
+    ctx.lineWidth = 1*dpr;
+
+    for (let i=0;i<26;i++){
+      const r = (i/26)*maxR;
+      const wobble = 1 + 0.02*Math.sin(time*1.6 + i*0.9);
+      ctx.beginPath();
+      const steps = 220;
+      for (let s=0;s<=steps;s++){
+        const a = (s/steps)*Math.PI*2;
+        const k = 1 + 0.06*Math.sin(a*10 + i*0.8 + time*0.9);
+        const rr = r * wobble * k;
+        const x = cx + Math.cos(a)*rr;
+        const y = baseY + Math.sin(a)*rr*0.20;
+        if (s===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+      }
+      ctx.strokeStyle = i%2===0 ? "rgba(255,190,210,0.18)" : "rgba(255,190,210,0.10)";
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  function drawBatteryLine(alphaMul){
+    if (!enableFireworks || alphaMul <= 0) return;
+    ctx.save();
+    ctx.translate(offsetX, offsetY);
+    ctx.scale(scale, scale);
+
+    const y = 310;
+    ctx.globalAlpha = 0.22 * alphaMul;
+    ctx.strokeStyle = "rgba(255,160,200,1)";
+    ctx.lineWidth = 1.2;
+    ctx.beginPath();
+    ctx.moveTo(-290, y);
+    ctx.lineTo( 290, y);
+    ctx.stroke();
+
+    ctx.globalAlpha = 0.26 * alphaMul;
+    ctx.fillStyle = "rgba(255,210,230,1)";
+    for (let i=0;i<battery.xs.length;i++){
+      const x = battery.xs[i];
+      ctx.beginPath();
+      ctx.arc(x, y, 1.6, 0, Math.PI*2);
+      ctx.fill();
+    }
+    ctx.restore();
+  }
+
+  // ================= Draw fireworks =================
+  function drawFireworks(alphaMul){
+    if (!enableFireworks || alphaMul <= 0) return;
+
+    ctx.save();
+    ctx.translate(offsetX, offsetY);
+    ctx.scale(scale, scale);
+
+    ctx.globalCompositeOperation = "lighter";
+
+    for (const f of flashes){
+      const a = (1 - f.age / f.life) * alphaMul;
+      if (a <= 0) continue;
+      ctx.globalAlpha = a * 0.80;
+      ctx.fillStyle = "rgba(255,240,248,1)";
+      ctx.beginPath();
+      ctx.arc(f.x, f.y, 4.2, 0, Math.PI*2);
+      ctx.fill();
+
+      ctx.globalAlpha = a * 0.20;
+      ctx.fillStyle = "rgba(255,120,170,1)";
+      ctx.beginPath();
+      ctx.arc(f.x, f.y, 13.0, 0, Math.PI*2);
+      ctx.fill();
+    }
+
+    for (const r of rockets){
+      if (r.trail.length > 1){
+        ctx.globalAlpha = 0.14 * alphaMul;
+        ctx.strokeStyle = "rgba(255,140,185,1)";
+        ctx.lineWidth = 2.0;
+        ctx.beginPath();
+        for (let i=0;i<r.trail.length;i++){
+          const p = r.trail[i];
+          if (i===0) ctx.moveTo(p.x, p.y);
+          else ctx.lineTo(p.x, p.y);
+        }
+        ctx.stroke();
+      }
+      ctx.globalAlpha = 0.92 * alphaMul;
+      ctx.fillStyle = "rgba(255,235,245,1)";
+      ctx.beginPath();
+      ctx.arc(r.x, r.y, 2.2, 0, Math.PI*2);
+      ctx.fill();
+    }
+
+    for (const s of sparkRain){
+      const t = s.age/s.life;
+      const a = s.a * (1-t) * alphaMul;
+      if (a <= 0) continue;
+      ctx.globalAlpha = a * 0.60;
+      ctx.fillStyle = "rgba(255,200,225,1)";
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, 0.8, 0, Math.PI*2);
+      ctx.fill();
+    }
+
+    ctx.globalCompositeOperation = "source-over";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+
+    for (const t of textLines){
+      const u = t.age/t.life;
+      const a = t.alpha * (1-u) * alphaMul;
+      if (a <= 0) continue;
+
+      ctx.save();
+      ctx.translate(t.x, t.y);
+
+      ctx.font = `800 ${t.size}px system-ui, -apple-system, Segoe UI, Roboto, "PingFang SC","Microsoft Yahei"`;
+
+      ctx.globalAlpha = a * 0.65;
+      ctx.lineWidth = 4.0;
+      ctx.strokeStyle = "rgba(0,0,0,0.55)";
+      ctx.strokeText(t.text, 0, 0);
+
+      ctx.globalAlpha = a * 0.96;
+      ctx.fillStyle = "rgba(255,245,250,0.96)";
+      ctx.fillText(t.text, 0, 0);
+
+      ctx.restore();
+    }
+
+    ctx.globalAlpha = 1;
+    ctx.restore();
+  }
+
+  // ================= Draw heart (with carved bright "7" grooves) =================
+  function drawHeart(alphaMul){
+    if (alphaMul <= 0) return;
+
+    const heartScale = 16.8;
+
+    const tForm = formed ? (time - formedAt) : 0;
+    const pulse = formed
+      ? (1 + 0.07*Math.sin(tForm*2.8) + 0.025*Math.sin(tForm*5.2))
+      : 1.0;
+
+    // 成型后：只抖动/呼吸（不自动旋转）
+    const jitterX = formed ? (Math.sin(tForm*9.0) * 1.3) : 0;
+    const jitterY = formed ? (Math.cos(tForm*8.2) * 1.1) : 0;
+    const shakeScale = formed ? (1 + 0.012*Math.sin(tForm*10.5)) : 1;
+
+    const activeCount = Math.floor(particles.length * easeOutCubic(heartProgress));
+
+    ctx.save();
+    ctx.translate(offsetX + jitterX*dpr, offsetY + jitterY*dpr);
+    ctx.scale(scale * shakeScale, scale * shakeScale);
+    ctx.globalCompositeOperation = "lighter";
+
+    for (let i=0;i<particles.length;i++){
+      const p = particles[i];
+      const active = i < activeCount;
+
+      // 心形目标（心形坐标 -> 世界）
+      const tx0 = p.tx; // 心形坐标
+      const ty0 = p.ty;
+
+      // “7亮纹”只在成型后更明显；成型前也能隐约出现一点
+      const seven = sevenIntensity(tx0, ty0);
+      const showSeven = formed ? 1.0 : 0.55;
+
+      // core：笔画内强增亮；rim：周边轻压暗（更像刻痕/纹理）
+      const core = seven.core * showSeven;
+      const rim  = seven.rim  * showSeven;
+
+      const tx = tx0 * heartScale * pulse;
+      const ty = ty0 * heartScale * pulse;
+
+      // 粒子当前位置混合
+      const rp = rotate3D(p.x, p.y, 0, rotX, rotY);
+      const rt = rotate3D(tx, ty, 0, rotX, rotY);
+
+      const mix = active ? 0.22 : 0.06;
+      const vx = rp.x*(1-mix) + rt.x*mix;
+      const vy = rp.y*(1-mix) + rt.y*mix;
+      const vz = rp.z*(1-mix) + rt.z*mix;
+
+      const pr = projectSafe(vx, vy, vz);
+
+      // 闪烁
+      const flick = 0.55 + 0.45*Math.sin(p.flicker + time*3.4);
+      let baseA = active ? (0.38 + 0.62*flick) : (0.10 + 0.20*flick);
+
+      // 周边刻痕：轻压暗（rim 高时压暗更多），让亮纹更突出
+      baseA *= (1 - 0.22*rim);
+
+      // 亮纹：增亮 + 增粗
+      const boostA = 1 + 1.65*core;         // 亮度提升
+      const boostR = 1 + 1.15*core;         // 半径提升
+
+      const pinkish = p.layer === "outline" ? 1.0 : 0.74;
+
+      // 亮纹区更偏白（减少粉色，让它像“刻进心里发光”）
+      const whiteShift = core; // 0..1
+      const R = 255;
+      const Gbase = Math.floor(180 + 55*pinkish);
+      const Bbase = Math.floor(200 + 40*pinkish);
+      const G = Math.floor(Gbase*(1-whiteShift) + 250*whiteShift);
+      const B = Math.floor(Bbase*(1-whiteShift) + 252*whiteShift);
+
+      const depthA = clamp(0.85 + (pr.s-1)*0.9, 0.55, 1.15);
+
+      let radius = Math.max(0.10, (p.size * (p.layer==="outline" ? 1.20 : 1.0)) * pr.s * 0.90);
+      radius *= boostR;
+
+      ctx.globalAlpha = baseA * p.glow * depthA * alphaMul * boostA;
+      ctx.fillStyle = `rgb(${R},${G},${B})`;
+      ctx.beginPath();
+      ctx.arc(pr.x, pr.y, radius, 0, Math.PI*2);
+      ctx.fill();
+
+      // 亮纹高光：加一层更大的柔光（但不要糊）
+      if (core > 0.22){
+        ctx.globalAlpha = baseA * 0.22 * alphaMul * (0.6 + 1.2*core);
+        ctx.beginPath();
+        ctx.arc(pr.x, pr.y, Math.max(0.18, radius*2.2), 0, Math.PI*2);
+        ctx.fill();
+      }
+
+      // 原来的轮廓闪烁
+      if (p.layer === "outline" && active && flick > 0.92){
+        ctx.globalAlpha = baseA * 0.70 * alphaMul;
+        ctx.beginPath();
+        ctx.arc(pr.x, pr.y, Math.max(0.12, radius*1.8), 0, Math.PI*2);
+        ctx.fill();
+      }
+    }
+
+    ctx.globalCompositeOperation = "source-over";
+    ctx.globalAlpha = 1;
+    ctx.restore();
+  }
+
+  // ================= Text =================
+  function drawTopText(){
+    if (!enableTyping) return;
+    if (!formed) return;
+    if (!typed) return;
+
+    ctx.save();
+    ctx.font = `700 ${Math.round(18*dpr)}px system-ui, -apple-system, Segoe UI, Roboto, "PingFang SC","Microsoft Yahei"`;
+    ctx.fillStyle = "rgba(255,255,255,.88)";
+    ctx.textAlign = "left";
+    ctx.textBaseline = "middle";
+    ctx.fillText(typed, Math.round(28*dpr), H*0.18);
+    ctx.restore();
+  }
+
+  // ================= Update logic =================
+  let showStarted = false;
+
+  function startShow(){
+    ctx.fillStyle = "#000";
+    ctx.fillRect(0,0,W,H);
+
+    showStarted = true;
+    introT = 0;
+    heartProgress = 0;
+    formed = false;
+    formedAt = 0;
+    typing = false;
+    typed = "";
+    typeTimer = 0;
+
+    rockets = [];
+    flashes = [];
+    sparkRain = [];
+    textLines = [];
+    textEmitters = [];
+
+    rebuildBattery();
+    resetHeartParticles();
+
+    if (enableFireworks){
+      for (let i=0;i<4;i++){
+        const x = battery.xs[i % battery.xs.length];
+        spawnRocketFromBattery(x);
+      }
+      battery.nextT = 0.10;
+    }
+  }
+
+  function update(dt){
+    time += dt;
+    if (!showStarted) return;
+
+    introT += dt;
+
+    const introRatio = clamp(introT / INTRO_DUR, 0, 1);
+    heartProgress = easeOutCubic(introRatio);
+
+    if (!formed && heartProgress >= 0.999){
+      formed = true;
+      formedAt = time;
+      if (enableTyping) startTyping();
+    }
+
+    // typing
+    if (formed && enableTyping && typing){
+      typeTimer += dt;
+      const cps = 16;
+      const n = Math.min(typeTarget.length, Math.floor(typeTimer*cps));
+      typed = typeTarget.slice(0, n);
+    }
+
+    // heart physics
+    const heartScale = 16.8;
+    const activeCount = Math.floor(particles.length * easeOutCubic(heartProgress));
+    const tForm = formed ? (time - formedAt) : 0;
+    const pulse = formed
+      ? (1 + 0.07*Math.sin(tForm*2.8) + 0.025*Math.sin(tForm*5.2))
+      : 1.0;
+
+    for (let i=0;i<particles.length;i++){
+      const p = particles[i];
+      const active = i < activeCount;
+
+      const tx = p.tx * heartScale * pulse;
+      const ty = p.ty * heartScale * pulse;
+
+      const k = active ? 2.1 : 0.22;
+      const damp = active ? 0.84 : 0.93;
+
+      const ax = (tx - p.x) * k;
+      const ay = (ty - p.y) * k;
+
+      const jitter = active ? 0.55 : 0.85;
+      const nx = (Math.random()-0.5)*jitter;
+      const ny = (Math.random()-0.5)*jitter;
+
+      p.vx = (p.vx + ax*dt + nx*dt*18) * damp;
+      p.vy = (p.vy + ay*dt + ny*dt*18) * damp;
+
+      const vmax = active ? 340 : 220;
+      p.vx = clamp(p.vx, -vmax, vmax);
+      p.vy = clamp(p.vy, -vmax, vmax);
+
+      p.x += p.vx * dt;
+      p.y += p.vy * dt;
+
+      p.flicker += dt * (active ? 1.15 : 0.90);
+
+      if (!active){
+        p.x *= (1 - dt*0.018);
+        p.y *= (1 - dt*0.018);
+      }
+    }
+
+    // fireworks during intro
+    if (enableFireworks && introT < INTRO_DUR){
+      batteryLaunch(dt);
+    }
+
+    // update flashes
+    for (let i=flashes.length-1;i>=0;i--){
+      const f = flashes[i];
+      f.age += dt;
+      if (f.age >= f.life) flashes.splice(i,1);
+    }
+
+    // update rockets
+    for (let i=rockets.length-1;i>=0;i--){
+      const r = rockets[i];
+      r.age += dt;
+
+      r.trail.push({ x: r.x, y: r.y });
+      if (r.trail.length > 12) r.trail.shift();
+
+      r.x += r.vx * dt;
+      r.y += r.vy * dt;
+      r.vy += 260 * dt;
+
+      if (enableFireworks && (r.y <= r.apexY || r.age >= r.life)){
+        spawnExplosion(r.x, r.y);
+        rockets.splice(i,1);
+        continue;
+      }
+      if (r.age > r.life + 1.2) rockets.splice(i,1);
+    }
+
+    // update spark rain
+    for (let i=sparkRain.length-1;i>=0;i--){
+      const s = sparkRain[i];
+      s.age += dt;
+      s.x += s.vx*dt;
+      s.y += s.vy*dt;
+
+      s.vx *= (1 - dt*0.12);
+      s.vy += 520*dt;
+      s.vy *= (1 - dt*0.04);
+
+      if (s.y > 330) s.a *= (1 - dt*1.4);
+      if (s.age >= s.life || s.a < 0.03) sparkRain.splice(i,1);
+    }
+    if (sparkRain.length > 1400) sparkRain.splice(0, sparkRain.length-1400);
+
+    // update text emitters
+    for (let i=textEmitters.length-1;i>=0;i--){
+      const em = textEmitters[i];
+      em.age += dt;
+      em.next -= dt;
+
+      while (em.next <= 0){
+        em.next += em.rate + rand(-0.03, 0.05);
+        emitTextLine(em);
+      }
+
+      if (em.age >= em.life) textEmitters.splice(i,1);
+    }
+
+    // update text lines
+    for (let i=textLines.length-1;i>=0;i--){
+      const t = textLines[i];
+      t.age += dt;
+
+      const wind = Math.sin(time*1.1 + t.y*0.01) * 6;
+      t.vx += (wind - t.vx) * dt * 0.08;
+
+      t.x += t.vx*dt;
+      t.y += t.vy*dt;
+
+      t.vy += 120*dt;
+      t.vy *= (1 - dt*0.03);
+
+      if (t.y > 315) t.alpha *= (1 - dt*1.2);
+
+      if (t.age >= t.life || t.alpha < 0.05) textLines.splice(i,1);
+    }
+  }
+
+  // ================= Render =================
+  function render(){
+    clearWithTrail();
+    drawBottomDisk();
+
+    if (!showStarted) return;
+
+    let fireA = 0, heartA = 0;
+
+    if (introT < INTRO_DUR){
+      fireA = enableFireworks ? 1.0 : 0.0;
+      const fadeInStart = INTRO_DUR - SWITCH_FADE;
+      if (introT > fadeInStart){
+        const u = clamp((introT - fadeInStart) / SWITCH_FADE, 0, 1);
+        heartA = u;
+        fireA = enableFireworks ? (1 - u) : 0.0;
+      } else {
+        heartA = 0.0;
+      }
+    } else {
+      heartA = 1.0;
+      fireA = 0.0;
+    }
+
+    drawBatteryLine(fireA);
+    drawFireworks(fireA);
+    drawHeart(heartA);
+    drawTopText();
+
+    ctx.save();
+    ctx.font = `${Math.round(12*dpr)}px system-ui, -apple-system, Segoe UI, Roboto, "PingFang SC","Microsoft Yahei"`;
+    ctx.fillStyle = "rgba(255,255,255,.55)";
+    ctx.textAlign = "left";
+    ctx.textBaseline = "bottom";
+    const pad = Math.round(14*dpr);
+    ctx.fillText("拖拽旋转｜Space+拖拽平移｜滚轮/捏合缩放｜输入 xx 才能进入", pad, H - pad);
+    ctx.restore();
+  }
+
+  // ================= Loop =================
+  let running = true;
+  let last = performance.now();
+  function loop(now){
+    if (!running) return;
+    const dt = Math.min(0.033, (now - last)/1000);
+    last = now;
+    update(dt);
+    render();
+    requestAnimationFrame(loop);
+  }
+
+  // ================= Init =================
+  resize();
+  window.addEventListener('resize', () => {
+    dpr = Math.max(1, Math.min(2.5, window.devicePixelRatio || 1));
+    resize();
+  });
+
+  // overlay entry
+  step1();
+
+  // initial clear
+  ctx.fillStyle = "#000";
+  ctx.fillRect(0,0,W,H);
+
+  requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>

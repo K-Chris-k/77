@@ -79,24 +79,18 @@
         #blessing-text { font-size:1.15rem; color:#ffe8cc; line-height:1.8; letter-spacing:2px; text-shadow:0 0 15px rgba(255,200,100,.3); }
         #blessing-close { margin-top:20px; font-size:.75rem; color:rgba(255,255,255,.3); letter-spacing:2px; }
 
-        /* === 许愿倒计时 (顶部，不挡蛋糕) === */
-        #wish-overlay { position:fixed; top:70px; left:0; right:0; z-index:50; display:flex; justify-content:center; pointer-events:none; opacity:0; transition:opacity .8s ease; }
-        #wish-overlay.show { opacity:1; }
-        #wish-overlay.hide { opacity:0; transition:opacity 1s ease; }
-        #wish-box { display:flex; align-items:center; gap:20px; background:rgba(0,0,0,.45); backdrop-filter:blur(12px); border:1px solid rgba(255,200,150,.15); border-radius:50px; padding:12px 30px; }
-        #wish-icon { font-size:1.6rem; animation:wishGlow 2s ease-in-out infinite; }
-        @keyframes wishGlow { 0%,100%{filter:drop-shadow(0 0 6px rgba(255,200,100,.5))} 50%{filter:drop-shadow(0 0 18px rgba(255,200,100,.9))} }
-        #wish-label { color:#ffd7a8; font-size:.95rem; letter-spacing:4px; text-shadow:0 0 15px rgba(255,200,100,.4); }
-        #wish-ring-wrap { position:relative; width:52px; height:52px; }
-        #wish-ring { width:52px; height:52px; transform:rotate(-90deg); }
-        .ring-bg { fill:none; stroke:rgba(255,200,150,.12); stroke-width:3; }
-        .ring-progress { fill:none; stroke:url(#ringGrad); stroke-width:3; stroke-linecap:round; stroke-dasharray:138.23; stroke-dashoffset:0; transition:stroke-dashoffset 1s linear; filter:drop-shadow(0 0 4px rgba(255,200,100,.5)); }
-        #wish-sec { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:1.3rem; font-weight:300; color:#ffd700; text-shadow:0 0 12px rgba(255,215,0,.4); }
+        /* === 打字机效果页 === */
+        #typewriter-page { position:fixed; inset:0; z-index:2500; background:radial-gradient(ellipse at center, #1a0a2e 0%, #0d0418 60%, #050210 100%); display:flex; align-items:center; justify-content:center; opacity:0; pointer-events:none; transition:opacity 1.5s ease; overflow:hidden; }
+        #typewriter-page.active { opacity:1; pointer-events:auto; }
+        #typewriter-content { max-width:600px; padding:30px 40px; color:#ffe8cc; font-size:1.1rem; line-height:2.2; letter-spacing:3px; text-shadow:0 0 15px rgba(255,200,100,.25); text-align:center; max-height:85vh; overflow-y:auto; }
+        #typewriter-content::-webkit-scrollbar { width:0; }
+        #typewriter-cursor { display:inline-block; width:2px; height:1.15em; background:#ffd700; margin-left:2px; animation:cursorBlink 1s step-end infinite; vertical-align:text-bottom; box-shadow:0 0 8px rgba(255,215,0,.5); }
+        @keyframes cursorBlink { 0%,50%{opacity:1} 51%,100%{opacity:0} }
+        .tw-char { display:inline; transition:none; }
 
-        /* === 吹灭提示 === */
-        #blow-text { position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); z-index:60; font-size:1.8rem; color:#ffd700; letter-spacing:8px; text-shadow:0 0 30px rgba(255,215,0,.8),0 0 60px rgba(255,150,80,.4); opacity:0; pointer-events:none; transition:opacity .6s ease; }
-        #blow-text.show { opacity:1; }
-        #blow-text.fade { opacity:0; transition:opacity 1.5s ease; }
+        /* === 鲜花飘落 === */
+        .flower-petal { position:fixed; pointer-events:none; z-index:2600; opacity:0; animation:flowerFall linear forwards; }
+        @keyframes flowerFall { 0%{transform:translateY(-60px) rotate(0deg) scale(.5);opacity:0} 8%{opacity:.9;transform:translateY(0) rotate(30deg) scale(1)} 90%{opacity:.6} 100%{transform:translateY(110vh) rotate(720deg) scale(.8);opacity:0} }
 
         /* ============ 移动端适配 ============ */
         @media (max-width: 768px) {
@@ -113,17 +107,8 @@
             #controls { gap:5px; bottom:10px; padding:0 6px; flex-wrap:wrap; justify-content:center; }
             .btn { padding:6px 10px; font-size:.65rem; letter-spacing:1px; }
 
-            /* 许愿 */
-            #wish-overlay { top:42px; }
-            #wish-box { gap:8px; padding:8px 14px; }
-            #wish-icon { font-size:1.2rem; }
-            #wish-label { font-size:.72rem; letter-spacing:2px; }
-            #wish-ring-wrap { width:38px; height:38px; }
-            #wish-ring { width:38px; height:38px; }
-            #wish-sec { font-size:.95rem; }
-
-            /* 吹灭提示 */
-            #blow-text { font-size:1.1rem; letter-spacing:4px; }
+            /* 打字机 */
+            #typewriter-content { font-size:.88rem; letter-spacing:2px; line-height:1.9; padding:20px 24px; max-width:92vw; }
 
             /* 气球 */
             .click-hint { font-size:.5rem; bottom:-14px; }
@@ -146,20 +131,12 @@
         @media (max-width: 380px) {
             #title h1 { font-size:1.1rem; letter-spacing:3px; }
             .btn { padding:5px 8px; font-size:.6rem; }
-            #wish-label { font-size:.65rem; letter-spacing:1px; }
             #blessing-text { font-size:.82rem; }
+            #typewriter-content { font-size:.8rem; line-height:1.8; }
         }
     </style>
 </head>
 <body>
-
-<svg style="position:absolute;width:0;height:0"><defs>
-    <linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-        <stop offset="0%" style="stop-color:#ffd700"/><stop offset="100%" style="stop-color:#ff8c42"/>
-    </linearGradient>
-</defs></svg>
-
-<div id="blow-text">🌬️ 呼～蜡烛熄灭了</div>
 
 <!-- 启动页 -->
 <div id="start-page">
@@ -174,20 +151,6 @@
 <!-- 蛋糕页 -->
 <div id="cake-page">
     <div id="title"><h1>Happy Birthday</h1></div>
-
-    <div id="wish-overlay">
-        <div id="wish-box">
-            <div id="wish-icon">🕯️</div>
-            <div id="wish-label">闭上眼睛，许个愿吧</div>
-            <div id="wish-ring-wrap">
-                <svg id="wish-ring" viewBox="0 0 48 48">
-                    <circle class="ring-bg" cx="24" cy="24" r="22"/>
-                    <circle class="ring-progress" cx="24" cy="24" r="22"/>
-                </svg>
-                <span id="wish-sec">30</span>
-            </div>
-        </div>
-    </div>
 
     <div id="balloon-layer"></div>
     <div id="photo-layer"></div>
@@ -209,8 +172,12 @@
         <button class="btn active" id="btnCake">🎂 蛋糕形态</button>
         <button class="btn" id="btnScatter">✨ 散开粒子</button>
         <button class="btn" id="btnHeart">💖 爱心形态</button>
-        <button class="btn" id="btnCandle">🕯️ 吹蜡烛</button>
     </div>
+</div>
+
+<!-- 打字机效果页 -->
+<div id="typewriter-page">
+    <div id="typewriter-content"></div>
 </div>
 
 <!-- ============ 倒计时脚本 ============ -->
@@ -594,7 +561,6 @@ function initCake(){
     renderer=new THREE.WebGLRenderer({antialias:aa});renderer.setSize(innerWidth,innerHeight);renderer.setPixelRatio(Math.min(devicePixelRatio,maxPR));renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1;renderer.shadowMap.enabled=!isMobile;document.body.appendChild(renderer.domElement);
     controls=new THREE.OrbitControls(camera,renderer.domElement);controls.enableDamping=true;controls.dampingFactor=.05;controls.target.set(0,4,0);controls.minDistance=8;controls.maxDistance=40;controls.maxPolarAngle=Math.PI*.85;
     setupLights();createCakeParticles();createCandles();createAmbientParticles();setupPostProcessing();setupEvents();animateCake();
-    startWish();
     startBirthdayMusic();
 }
 
@@ -910,7 +876,6 @@ function setupEvents(){
     document.getElementById('btnCake').addEventListener('click',()=>switchMode('cake'));
     document.getElementById('btnScatter').addEventListener('click',()=>switchMode('scatter'));
     document.getElementById('btnHeart').addEventListener('click',()=>switchMode('heart'));
-    document.getElementById('btnCandle').addEventListener('click',toggleCandles);
 }
 
 function switchMode(mode){
@@ -940,16 +905,19 @@ function switchMode(mode){
         controls.autoRotate = false;
         stopPhotoFloat();
     }
-}
 
-function toggleCandles(){
-    candlesOn=!candlesOn;
-    const b=document.getElementById('btnCandle');
-    b.textContent=candlesOn?'🕯️ 吹蜡烛':'🔥 点蜡烛';
-    b.classList.toggle('active',!candlesOn);
+    // 爱心模式：35秒后自动进入打字机环节
+    clearTimeout(heartTimer);
+    if(mode==='heart' && !typewriterTriggered){
+        heartTimer = setTimeout(function(){
+            typewriterTriggered = true;
+            startTypewriter();
+        }, 35000);
+    }
 }
 
 function animateCake(){
+    if(!cakeAnimActive) return;
     requestAnimationFrame(animateCake);
     const t=clock.getElapsedTime();
     for(const o of allObjects){const m=o.mesh;m.position.lerp(o.currentTarget,transitionSpeed);m.position.y+=Math.sin(t*.8+m.position.x*1.2)*.003;m.position.x+=Math.cos(t*.5+m.position.z*.8)*.002;m.rotation.x+=o.rs.x;m.rotation.y+=o.rs.y;m.rotation.z+=o.rs.z;if(o.lt===4)m.material.emissiveIntensity=.2+.15*Math.sin(t*2.5+m.position.y*3);}
@@ -1056,40 +1024,126 @@ function closePhotoOverlay(){
 }
 
 // ================================================================
-//  许愿倒计时
+//  打字机效果 + 鲜花结尾
 // ================================================================
-const WISH_DUR=30, RING_C=2*Math.PI*22;
+var TYPEWRITER_TEXT = "\u4eb2\u7231\u768477\uff1a\n\n\u5728\u8fd9\u4e2a\u5c5e\u4e8e\u4f60\u7684\u65e5\u5b50\u91cc\uff0c\n\u60f3\u628a\u6700\u6e29\u67d4\u7684\u8bdd\u8bf4\u7ed9\u4f60\u542c\u3002\n\n\u65f6\u95f4\u7684\u811a\u6b65\u4ece\u4e0d\u505c\u6b47\uff0c\n\u4f46\u6709\u4e9b\u7f8e\u597d\u4f1a\u6c38\u8fdc\u7559\u5728\u5fc3\u91cc\u3002\n\n\u611f\u8c22\u4f60\u51fa\u73b0\u5728\u8fd9\u4e2a\u4e16\u754c\u4e0a\uff0c\n\u4f60\u7684\u5b58\u5728\uff0c\u672c\u8eab\u5c31\u662f\u4e00\u4efd\u793c\u7269\u3002\n\n\u4f60\u662f\u85cf\u5728\u5c81\u6708\u91cc\u7684\u6e29\u67d4\uff0c\n\u662f\u5e73\u51e1\u65e5\u5b50\u91cc\u6700\u4eae\u7684\u661f\u3002\n\n\u613f\u4f60\u773c\u4e2d\u6709\u5149\u8292\uff0c\n\u5fc3\u4e2d\u6709\u65b9\u5411\u3002\n\n\u613f\u4f60\u8d70\u8fc7\u7684\u6bcf\u4e00\u6b65\uff0c\n\u90fd\u7b97\u6570\u3002\n\n\u613f\u65b0\u7684\u4e00\u5c81\uff0c\n\u6240\u6709\u671f\u5f85\u90fd\u80fd\u5982\u7ea6\u800c\u81f3\u3002\n\n\u751f\u65e5\u5feb\u4e50\u3002\u6c38\u8fdc\u5feb\u4e50\u3002";
 
-function startWish(){
-    const ov=document.getElementById('wish-overlay'),sec=document.getElementById('wish-sec'),ring=document.querySelector('.ring-progress');
-    setTimeout(()=>{
-        ov.classList.add('show');
-        let left=WISH_DUR;
-        sec.textContent=left;
-        ring.style.strokeDashoffset='0';
-        const iv=setInterval(()=>{
-            left--;if(left<0)left=0;
-            sec.textContent=left;
-            ring.style.strokeDashoffset=((1-left/WISH_DUR)*RING_C).toFixed(1);
-            if(left<=5&&left>0){sec.style.color='#ff6b4a';sec.style.textShadow='0 0 20px rgba(255,100,60,.8)';}
-            if(left<=0){clearInterval(iv);blowOut();}
-        },1000);
-    },3000);
+var heartTimer = null;
+var typewriterTriggered = false;
+var cakeAnimActive = true;
+var flowerInterval = null;
+
+function startTypewriter() {
+    stopBirthdayMusic();
+    stopBalloons();
+    stopPhotoFloat();
+    clearTimeout(heartTimer);
+    cakeAnimActive = false;
+
+    var ctrl = document.getElementById('controls');
+    if (ctrl) ctrl.style.display = 'none';
+    var titleEl = document.getElementById('title');
+    if (titleEl) titleEl.style.display = 'none';
+
+    var page = document.getElementById('typewriter-page');
+    var content = document.getElementById('typewriter-content');
+    content.innerHTML = '';
+    page.classList.add('active');
+
+    var cursor = document.createElement('span');
+    cursor.id = 'typewriter-cursor';
+    content.appendChild(cursor);
+
+    var chars = TYPEWRITER_TEXT.split('');
+    var idx = 0;
+
+    function typeNext() {
+        if (idx >= chars.length) {
+            setTimeout(function() {
+                cursor.style.display = 'none';
+                setTimeout(function() {
+                    scatterText();
+                    setTimeout(startFlowerRain, 1500);
+                }, 15000);
+            }, 800);
+            return;
+        }
+        var ch = chars[idx];
+        if (ch === '\n') {
+            content.insertBefore(document.createElement('br'), cursor);
+        } else {
+            var span = document.createElement('span');
+            span.className = 'tw-char';
+            span.textContent = ch;
+            content.insertBefore(span, cursor);
+        }
+        idx++;
+        var delay = 75;
+        if (ch === '\n') delay = 300;
+        else if ('\uff0c\u3002\uff01\uff1f\uff1a\uff1b\u2026'.indexOf(ch) >= 0) delay = 220;
+        else if (ch === ' ') delay = 40;
+        else if ('\u3001\u201c\u201d\u2018\u2019'.indexOf(ch) >= 0) delay = 100;
+        setTimeout(typeNext, delay);
+    }
+
+    setTimeout(typeNext, 1200);
 }
 
-function blowOut(){
-    document.getElementById('wish-overlay').classList.remove('show');
-    document.getElementById('wish-overlay').classList.add('hide');
-    playBlowSound();
-    const bt=document.getElementById('blow-text');
-    setTimeout(()=>bt.classList.add('show'),300);
-    setTimeout(()=>{candlesOn=false;document.getElementById('btnCandle').textContent='🔥 点蜡烛';document.getElementById('btnCandle').classList.add('active');},800);
-    setTimeout(()=>{bt.classList.remove('show');bt.classList.add('fade');switchMode('scatter');},3000);
-    setTimeout(()=>bt.classList.remove('fade'),5000);
+function scatterText() {
+    var content = document.getElementById('typewriter-content');
+    var charSpans = content.querySelectorAll('.tw-char');
+    var positions = [];
+    charSpans.forEach(function(span) {
+        var rect = span.getBoundingClientRect();
+        positions.push({ el: span, x: rect.left, y: rect.top, w: rect.width, h: rect.height });
+    });
+    content.innerHTML = '';
+    var scatter = document.createElement('div');
+    scatter.style.cssText = 'position:fixed;inset:0;pointer-events:none;';
+    document.getElementById('typewriter-page').appendChild(scatter);
+    positions.forEach(function(p) {
+        p.el.style.cssText = 'position:fixed;left:' + p.x + 'px;top:' + p.y + 'px;display:inline-block;color:#ffe8cc;font-size:inherit;letter-spacing:0;text-shadow:0 0 15px rgba(255,200,100,.25);';
+        scatter.appendChild(p.el);
+    });
+    scatter.offsetHeight;
+    requestAnimationFrame(function() {
+        positions.forEach(function(p) {
+            var tx = (Math.random() - 0.5) * innerWidth * 2;
+            var ty = (Math.random() - 0.5) * innerHeight * 2;
+            var rot = (Math.random() - 0.5) * 720;
+            var dur = 2 + Math.random() * 1.5;
+            p.el.style.transition = 'all ' + dur + 's cubic-bezier(.25,.1,.25,1)';
+            p.el.style.transform = 'translate(' + tx + 'px, ' + ty + 'px) rotate(' + rot + 'deg)';
+            p.el.style.opacity = '0';
+        });
+    });
+    setTimeout(function() { scatter.remove(); }, 4000);
 }
 
-function playBlowSound(){
-    try{const a=new(window.AudioContext||window.webkitAudioContext)(),dur=1.5,sr=a.sampleRate,sz=sr*dur,buf=a.createBuffer(1,sz,sr),d=buf.getChannelData(0);for(let i=0;i<sz;i++){const t=i/sr,env=Math.min(t/.08,1)*Math.exp(-t*2.5);d[i]=((Math.random()*2-1)*.6+Math.sin(t*80)*.3)*env*.5;}const s=a.createBufferSource();s.buffer=buf;const f=a.createBiquadFilter();f.type='lowpass';f.frequency.setValueAtTime(2000,a.currentTime);f.frequency.exponentialRampToValueAtTime(400,a.currentTime+dur);const g=a.createGain();g.gain.setValueAtTime(.6,a.currentTime);g.gain.exponentialRampToValueAtTime(.01,a.currentTime+dur);s.connect(f);f.connect(g);g.connect(a.destination);s.start();s.onended=()=>a.close();}catch(e){}
+function startFlowerRain() {
+    var flowers = ['\ud83c\udf38','\ud83c\udf3a','\ud83c\udf37','\ud83c\udf39','\ud83d\udc90','\ud83c\udff5\ufe0f','\ud83c\udf3b','\ud83d\udcae','\ud83c\udf3c'];
+    var page = document.getElementById('typewriter-page');
+    function spawnFlower() {
+        var el = document.createElement('div');
+        el.className = 'flower-petal';
+        el.textContent = flowers[Math.random() * flowers.length | 0];
+        el.style.left = (Math.random() * 100) + 'vw';
+        var size = (isMobile ? 14 : 18) + Math.random() * (isMobile ? 16 : 22);
+        el.style.fontSize = size + 'px';
+        var dur = 5 + Math.random() * 7;
+        el.style.animationDuration = dur + 's';
+        el.style.animationDelay = (Math.random() * 0.3) + 's';
+        page.appendChild(el);
+        setTimeout(function() { el.remove(); }, (dur + 1) * 1000);
+    }
+    var burstCount = isMobile ? 35 : 60;
+    for (var i = 0; i < burstCount; i++) {
+        setTimeout(spawnFlower, Math.random() * 3000);
+    }
+    flowerInterval = setInterval(function() {
+        var count = isMobile ? 2 : 4;
+        for (var j = 0; j < count; j++) spawnFlower();
+    }, 600);
 }
 
 // ================================================================

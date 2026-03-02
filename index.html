@@ -1235,53 +1235,51 @@ function scatterText() {
     setTimeout(function() { scatter.remove(); }, 4000);
 }
 
-// emoji items
+// realistic image URLs (transparent PNG from pngimg.com)
+var popImageURLs = [
+    'https://pngimg.com/uploads/gold/gold_PNG11032.png',
+    'https://pngimg.com/uploads/gold/gold_PNG10957.png',
+    'https://pngimg.com/uploads/brilliant/brilliant_PNG46816.png',
+    'https://pngimg.com/uploads/brilliant/brilliant_PNG46800.png',
+    'https://pngimg.com/uploads/brilliant/brilliant_PNG46799.png',
+    'https://pngimg.com/uploads/brilliant/brilliant_PNG46793.png'
+];
+var popImgCache = [];
+var popImgReady = false;
+
+// preload images
+(function() {
+    var loaded = 0;
+    popImageURLs.forEach(function(url) {
+        var img = new Image();
+        img.onload = function() { popImgCache.push(url); loaded++; if (loaded >= 2) popImgReady = true; };
+        img.onerror = function() { loaded++; if (loaded >= 2) popImgReady = true; };
+        img.src = url;
+    });
+    setTimeout(function() { popImgReady = true; }, 5000);
+})();
+
 var popEmojis = [
     '\ud83c\udf38','\ud83c\udf3a','\ud83c\udf37','\ud83c\udf39','\ud83d\udc90','\ud83c\udf3b','\ud83c\udf3c',
-    '\ud83d\udce8','\ud83d\udc8c','\ud83c\udf81','\ud83c\udf80'
+    '\ud83d\udce8','\ud83d\udc8c','\ud83c\udf81','\ud83c\udf80',
+    '\ud83c\udfc6','\ud83d\udc51'
 ];
-
-// SVG inline images for realistic money/jewelry
-function svgUSD() {
-    return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 36"><rect rx="3" width="80" height="36" fill="#2a6e30"/><rect x="2" y="2" rx="2" width="76" height="32" fill="none" stroke="#5eb86a" stroke-width=".8" stroke-dasharray="2,1.5"/><rect x="4" y="4" rx="1" width="72" height="28" fill="#327a38"/><circle cx="40" cy="18" r="12" fill="none" stroke="#5eb86a" stroke-width=".5" opacity=".4"/><text x="40" y="22" text-anchor="middle" font-size="16" font-weight="bold" fill="#a0dfa6" font-family="serif">$</text><text x="10" y="12" font-size="6" fill="#6ec476" font-family="serif">100</text><text x="70" y="30" font-size="6" fill="#6ec476" font-family="serif" text-anchor="end">100</text></svg>';
-}
-function svgRMB() {
-    return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 36"><rect rx="3" width="80" height="36" fill="#b02020"/><rect x="2" y="2" rx="2" width="76" height="32" fill="none" stroke="#e88" stroke-width=".8" stroke-dasharray="2,1.5"/><rect x="4" y="4" rx="1" width="72" height="28" fill="#c42828"/><circle cx="40" cy="18" r="12" fill="none" stroke="#e88" stroke-width=".5" opacity=".4"/><text x="40" y="22" text-anchor="middle" font-size="16" font-weight="bold" fill="#ffd0a0" font-family="serif">\u00a5</text><text x="10" y="12" font-size="6" fill="#f4a0a0" font-family="serif">100</text><text x="70" y="30" font-size="6" fill="#f4a0a0" font-family="serif" text-anchor="end">100</text></svg>';
-}
-function svgGoldCoin() {
-    return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40"><defs><radialGradient id="gc" cx=".35" cy=".35"><stop offset="0%" stop-color="#fff0a0"/><stop offset="30%" stop-color="#ffd700"/><stop offset="70%" stop-color="#daa520"/><stop offset="100%" stop-color="#b8860b"/></radialGradient></defs><circle cx="20" cy="20" r="18" fill="url(#gc)" stroke="#a07010" stroke-width="1.5"/><circle cx="20" cy="20" r="14" fill="none" stroke="#c8a030" stroke-width=".8"/><text x="20" y="24" text-anchor="middle" font-size="14" font-weight="bold" fill="#7a5a00" font-family="serif">$</text><ellipse cx="14" cy="12" rx="4" ry="2" fill="rgba(255,255,255,.25)" transform="rotate(-20,14,12)"/></svg>';
-}
-function svgGoldBar() {
-    return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 30"><defs><linearGradient id="gb" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#fff0a0"/><stop offset="25%" stop-color="#ffd700"/><stop offset="50%" stop-color="#daa520"/><stop offset="75%" stop-color="#ffd700"/><stop offset="100%" stop-color="#cd950c"/></linearGradient></defs><polygon points="12,6 48,6 56,24 4,24" fill="url(#gb)" stroke="#a07010" stroke-width="1"/><polygon points="12,6 48,6 44,12 16,12" fill="rgba(255,255,255,.2)"/><line x1="16" y1="12" x2="4" y2="24" stroke="#b8860b" stroke-width=".5"/><line x1="44" y1="12" x2="56" y2="24" stroke="#b8860b" stroke-width=".5"/><text x="30" y="20" text-anchor="middle" font-size="9" font-weight="bold" fill="#7a5a00" font-family="serif">GOLD</text></svg>';
-}
-function svgDiamond() {
-    return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 36"><defs><linearGradient id="dm" x1="0" y1="0" x2=".5" y2="1"><stop offset="0%" stop-color="#e8f4ff"/><stop offset="30%" stop-color="#7ec8f0"/><stop offset="60%" stop-color="#4a9cd6"/><stop offset="100%" stop-color="#2870a8"/></linearGradient></defs><polygon points="20,2 36,14 20,34 4,14" fill="url(#dm)" stroke="#5ab0e0" stroke-width=".8"/><polygon points="20,2 12,14 20,14" fill="rgba(255,255,255,.45)"/><polygon points="20,2 28,14 20,14" fill="rgba(255,255,255,.25)"/><polygon points="12,14 20,34 20,14" fill="rgba(0,40,100,.15)"/><line x1="4" y1="14" x2="36" y2="14" stroke="rgba(255,255,255,.3)" stroke-width=".5"/><polygon points="16,6 13,10 17,10" fill="rgba(255,255,255,.5)"/></svg>';
-}
-function svgGoldYuanbao() {
-    return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 32"><defs><linearGradient id="yb" x1="0" y1="0" x2=".5" y2="1"><stop offset="0%" stop-color="#fff5a0"/><stop offset="40%" stop-color="#ffd700"/><stop offset="70%" stop-color="#daa520"/><stop offset="100%" stop-color="#b8860b"/></linearGradient></defs><ellipse cx="25" cy="24" rx="22" ry="7" fill="url(#yb)" stroke="#a07010" stroke-width=".8"/><path d="M10,24 Q10,10 18,8 Q25,6 32,8 Q40,10 40,24" fill="url(#yb)" stroke="#a07010" stroke-width=".8"/><ellipse cx="25" cy="12" rx="8" ry="3" fill="rgba(255,255,255,.25)"/><path d="M14,18 Q25,14 36,18" fill="none" stroke="rgba(255,255,255,.2)" stroke-width="1"/></svg>';
-}
-
-// build pool: 40% money/treasure, 60% emoji
-var svgMakers = [svgUSD, svgUSD, svgUSD, svgRMB, svgRMB, svgRMB, svgGoldCoin, svgGoldCoin, svgGoldBar, svgGoldBar, svgDiamond, svgDiamond, svgGoldYuanbao, svgGoldYuanbao];
 var popActive = false;
 
 function createPopEl() {
     var el = document.createElement('div');
-    // ~45% chance SVG image, ~55% emoji
-    if (Math.random() < 0.45) {
-        var maker = svgMakers[Math.floor(Math.random() * svgMakers.length)];
-        var svg = maker();
-        var blob = new Blob([svg], {type:'image/svg+xml'});
-        var url = URL.createObjectURL(blob);
+    // 50% chance real image (if loaded), 50% emoji
+    if (popImgCache.length > 0 && Math.random() < 0.5) {
+        var url = popImgCache[Math.floor(Math.random() * popImgCache.length)];
         var img = document.createElement('img');
         img.src = url;
-        img.onload = function() { URL.revokeObjectURL(url); };
-        var w = (isMobile ? 28 : 40) + Math.random() * (isMobile ? 16 : 24);
-        img.style.cssText = 'width:' + w + 'px;height:auto;display:block;filter:drop-shadow(0 2px 4px rgba(0,0,0,.4));';
+        var w = (isMobile ? 32 : 48) + Math.random() * (isMobile ? 18 : 28);
+        img.style.cssText = 'width:' + w + 'px;height:auto;display:block;filter:drop-shadow(0 2px 6px rgba(0,0,0,.5));';
+        img.onerror = function() { el.textContent = popEmojis[Math.floor(Math.random() * popEmojis.length)]; el.style.fontSize = w + 'px'; };
         el.appendChild(img);
     } else {
         el.textContent = popEmojis[Math.floor(Math.random() * popEmojis.length)];
-        var size = (isMobile ? 18 : 24) + Math.random() * (isMobile ? 16 : 22);
+        var size = (isMobile ? 20 : 26) + Math.random() * (isMobile ? 14 : 20);
         el.style.fontSize = size + 'px';
     }
     return el;
